@@ -2,6 +2,7 @@
 
 D'Foodie is a full-stack recipe-sharing web application developed using **Vue.js** for the client-side and a **Node.js** server with RESTful APIs. The application integrates the **Spoonacular API** for recipe search, caching, and user-specific features like favorites and custom recipes.
 
+![Homepage](user_homepage.jpg)
 ---
 
 ## **Features**
