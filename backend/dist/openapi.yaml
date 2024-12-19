@@ -1,0 +1,572 @@
+openapi: 3.0.0
+info:
+  title: Recipes api
+  description: API for recipes project
+  version: 1.0.1
+servers:
+# local:
+- url: "http://127.0.0.1:3000"
+# remote:
+# - url: "http://132.72.65.211"
+  description: SwaggerHub API Auto Mocking hey
+tags:
+- name: Auth
+  description: All authentication related routes
+- name: Users
+  description: All the user's personal app info
+- name: Recipes
+  description: All reciepes general info
+paths:
+  /register:
+    post:
+      tags:
+      - Auth
+      summary: A new user from the client is added to the server
+      description: A JSON object contains all the details about the new user.
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "201":
+          description: A new user has been added
+        "400":
+          description: wrong input parameters
+  /login:
+    post:
+      tags:
+      - Auth
+      summary: Login an exist user
+      description: An exist user login to the system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginScheme'
+        required: true
+      responses:
+        "200":
+          description: |
+            User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: session=87s97sdhgf279293f8w0e9
+        "401":
+          description: Authentication failed
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: logout a user from the system and delete his cookie
+      responses:
+        "200":
+          description: "the user has ben successfully logged out"
+  /users/favorites:
+    get:
+      tags:
+      - Users
+      summary: Return the favorite recipes that were saved by user
+      description: Get an array of recipes that were saved by a specific user
+      responses:
+        "200":
+          description: data about the user's favorites recipes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: user is not authorized
+      security:
+      - cookieAuth: []
+    post:
+      tags:
+      - Users
+      summary: save recipe in the favorites list of a user
+      description: save recipe in the favorites list of a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipeId:
+                  type: string
+                  description: recipe's id which the user saved
+                  example: 716429
+      responses:
+        "200":
+          description: The Recipe successfully saved as favorite
+        "401":
+          description: user is not authorized
+      security:
+      - cookieAuth: []
+  /recipes/{recipeId}:
+    get:
+      tags:
+      - Recipes
+      summary: Return preview details on recipe by his ID
+      description: Return preview details on recipe by his ID
+      parameters:
+      - name: recipeId
+        in: path
+        description: recipe's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipePreview'
+        "404":
+          description: recipeId is not exists
+  /recipes/fullview/{recipe_id}:
+    get:
+      tags:
+        - Recipes
+      summary: "Get full view of a recipe by ID"
+      description: "Returns the full view of a recipe when provided with the recipe ID."
+      operationId: "GetFullViewRecipeByID"
+      parameters:
+        - $ref: "#/components/parameters/recipeID"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeFullView"
+              examples:
+                example1:
+                  value:
+                    id: 716429
+                    image: "https://img.spoonacular.com/recipes/716429-556x370.jpg"
+                    title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"
+                    readyInMinutes: 45
+                    aggregateLikes: 209
+                    vegetarian: false
+                    vegan: false
+                    glutenFree: false
+                    summary: "You can never have too many main course recipes..."
+                    analyzedInstructions: []
+                    instructions: ""
+                    extendedIngredients:
+                      - id: 1001
+                        aisle: "Milk, Eggs, Other Dairy"
+                        image: "butter-sliced.jpg"
+                        consistency: "SOLID"
+                        name: "butter"
+                        nameClean: "butter"
+                        original: "1 tbsp butter"
+                        originalName: "butter"
+                        amount: 1.0
+                        unit: "tbsp"
+                        meta: []
+                        measures:
+                          us:
+                            amount: 1.0
+                            unitShort: "Tbsp"
+                            unitLong: "Tbsp"
+                          metric:
+                            amount: 1.0
+                            unitShort: "Tbsp"
+                            unitLong: "Tbsp"
+        404:
+          description: "Recipe Not Found"
+  /recipes/search/{recipe_name}:
+    get:
+      tags:
+        - Recipes
+      summary: "Search recipes by name"
+      description: "Search for recipes by name with optional sorting and filtering."
+      operationId: "SearchRecipeByName"
+      parameters:
+        - $ref: "#/components/searchParameters"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipePreview"
+              examples:
+                example1:
+                  value:
+                    "716429":
+                      id: 716429
+                      image: "https://img.spoonacular.com/recipes/716429-556x370.jpg"
+                      title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"
+                      readyInMinutes: 45
+                      aggregateLikes: 209
+                      vegetarian: false
+                      vegan: false
+                      glutenFree: false
+                      summary: "You can never have too many main course recipes..."
+        404:
+          description: "Recipes Not Found"
+  
+  /users/createRecipes:
+    post:
+      tags:
+        - Users
+      summary: "Add user recipe"
+      description: "Add a new recipe created by the user."
+      operationId: "AddUserRecipe"
+      parameters:
+        - $ref: "#/components/parameters/username"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "My New Recipe"
+                readyInMinutes:
+                  type: integer
+                  example: 30
+                image:
+                  type: string
+                  example: "http://example.com/my-recipe.jpg"
+                popularity:
+                  type: integer
+                  example: 10
+                vegan:
+                  type: boolean
+                  example: false
+                vegetarian:
+                  type: boolean
+                  example: true
+                glutenFree:
+                  type: boolean
+                  example: false
+                ingredients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "flour"
+                      amount:
+                        type: number
+                        example: 200
+                      unit:
+                        type: string
+                        example: "grams"
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe created successfully"
+                  recipe_id:
+                    type: integer
+                    example: 12345
+        400:
+          description: "Bad request - verify information"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Missing required fields"
+
+  
+  /users/myRecipes:
+    get:
+      tags:
+        - Users
+      summary: "Get user recipes preview"
+      description: "Get a preview of recipes created by the user."
+      operationId: "GetUserRecipesPreview"
+      parameters:
+        - $ref: "#/components/parameters/username"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipePreview"
+              examples:
+                example1:
+                  value:
+                    "716429":
+                      id: 716429
+                      image: "https://img.spoonacular.com/recipes/716429-556x370.jpg"
+                      title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"
+                      readyInMinutes: 45
+                      aggregateLikes: 209
+                      vegetarian: false
+                      vegan: false
+                      glutenFree: false
+                      summary: "You can never have too many main course recipes..."
+        404:
+          description: "No recipes created by the user were found"
+  /users/myFamilyRecipes:
+    get:
+      tags:
+        - Users
+      summary: "Get user's family recipes preview"
+      description: "Get a preview of family recipes created by the user."
+      operationId: "GetUsersFamilyRecipesPreview"
+      parameters:
+        - $ref: "#/components/parameters/username"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FamilyRecipePreview"
+              examples:
+                example1:
+                  value:
+                    "716429":
+                      id: 716429
+                      image: "https://img.spoonacular.com/recipes/716429-556x370.jpg"
+                      title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"
+                      readyInMinutes: 45
+                      aggregateLikes: 209
+                      vegetarian: false
+                      vegan: false
+                      glutenFree: false
+                      summary: "You can never have too many main course recipes..."
+                      recipeAuthor: "John Doe"
+                      traditionOfCookingTheRecipe: "Italian"
+        404:
+          description: "No family recipes were found"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          description: username conatins between 3 to 8 letters only
+          example: my_name
+        firstname:
+          type: string
+          description: user's first name
+          example: my_first_name
+        lastname:
+          type: string
+          description: user's last name
+          example: my_last_name
+        country:
+          type: string
+          description: user's country
+          example: Israel
+        password:
+          maxLength: 10
+          minLength: 5
+          type: string
+          description: password conatins between 5 to 10 chars, at least one of them
+            is a number and a special char
+          format: password
+          example: my_name@12
+        email:
+          pattern: email
+          type: string
+          description: user's email
+          example: my_name12@gmail.com
+        # image-url:
+        #   pattern: URL
+        #   type: string
+        #   description: URL for the user's image
+        #   example: https://cloudinary.com/
+      description: Model containing user info
+    LoginScheme:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          description: username conatins letters only
+        password:
+          maxLength: 10
+          minLength: 5
+          description: password conatins at least one number and one special char
+          format: password
+      example:
+        username: my_name
+        password: my_name@12
+    RecipePreview:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: recipe identifier
+          example: 102
+        title:
+          type: string
+          description: recipe name
+          example: Simple Macaroni and Cheese
+        image:
+          type: string
+          description: recipe image
+          format: URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        readyInMinutes:
+          type: integer
+          description: the time takes to make this recipe
+          example: 45
+        popularity:
+          type: integer
+          description: how many likes got this recipe
+          example: 5987
+        vegetarian:
+          type: boolean
+          description: indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: indication if the recipe is gluten free
+          example: false
+        recipeID:
+      name: "recipeID"
+      in: "query"
+      description: "ID of the recipe"
+      required: true
+      schema:
+        type: "integer"
+    username:
+      name: "username"
+      in: "query"
+      description: "name of the user"
+      required: true
+      schema:
+        type: "string"
+    searchParameters:
+      name: "searchParameters"
+      in: "query"
+      description: "Search parameters including recipe name, sorting criteria, number of results, and filtering categories"
+      required: true
+      schema:
+        $ref: "#/components/schemas/Search"
+    Search:
+      type: "object"
+      properties:
+        recipeName:
+          type: "string"
+          description: "Name of the recipe to search for"
+        sortingCriteria:
+          type: "string"
+          description: "Sorting criteria for the search results (either 'cooking time' or 'popularity')"
+          enum:
+            - "cooking time"
+            - "popularity"
+        numberOfResults:
+          type: "integer"
+          description: "Number of results to return, default is 5"
+          default: 5
+    RecipeFullView:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        image:
+          type: "string"
+        title:
+          type: "string"
+        readyInMinutes:
+          type: "integer"
+        aggregateLikes:
+          type: "integer"
+        vegetarian:
+          type: "boolean"
+        vegan:
+          type: "boolean"
+        glutenFree:
+          type: "boolean"
+        summary:
+          type: "string"
+        analyzedInstructions:
+          type: "array"
+          items:
+            type: "string"
+        instructions:
+          type: "string"
+        extendedIngredients:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "integer"
+              aisle:
+                type: "string"
+              image:
+                type: "string"
+              consistency:
+                type: "string"
+              name:
+                type: "string"
+              nameClean:
+                type: "string"
+              original:
+                type: "string"
+              originalName:
+                type: "string"
+              amount:
+                type: "number"
+              unit:
+                type: "string"
+              meta:
+                type: "array"
+                items:
+                  type: "string"
+              measures:
+                type: "object"
+                properties:
+                  us:
+                    type: "object"
+                    properties:
+                      amount:
+                        type: "number"
+                      unitShort:
+                        type: "string"
+                      unitLong:
+                        type: "string"
+                  metric:
+                    type: "object"
+                    properties:
+                      amount:
+                        type: "number"
+                      unitShort:
+                        type: "string"
+                      unitLong:
+                        type: "string"
+    
+        
+  

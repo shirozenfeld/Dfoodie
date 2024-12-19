@@ -1,0 +1,24 @@
+{
+    "recipe_id": "לחם מתוק",
+    "username": "shir",
+    "title": "קולצ'י ק'אני",
+    "readyInMinutes": 25,
+    "image": "https://imaot.co.il/images/Uploads/StepImages/9641582132019.jpg",
+    "popularity": 100,
+    "vegan": 0,
+    "vegetarian": 0,
+    "glutenFree": 0,
+    "summary": "לחם מתוק לפי מתכון של סבתא תמרה. נהוג להכין בפורים, אוזני המן נוסח יהודי בוכרה.",
+    "instructions": "מכניסים את כל הרכיבים לקערה ומערבבים, לשים חמש דקות עד שהבצק מתאחד, מכניסים לתנור עשר דקות על חום 180",
+    "ingredients": [
+    { "ingredient_name": "קמח", "amount": 500, "unit": "גרם" },
+    { "ingredient_name": "שמרים", "amount": 1.0, "unit":"כף" },
+    { "ingredient_name": "סוכר", "amount": 0.5, "unit": "כוס" },
+    { "ingredient_name": "מחמאה/מרגרינה", "amount": 1.0, "unit": "חבילה" },
+    { "ingredient_name": "מחית וניל", "amount": 1.0, "unit": "כף" },
+    { "ingredient_name": "אבקת אפיה", "amount": 1.0, "unit": "שקית" },
+    { "ingredient_name": "ביצים", "amount": 30, "unit": "גרם" },
+    { "ingredient_name": "מלח", "amount": 1.0, "unit": "כף" },
+    { "ingredient_name": "מים", "amount": 2.0, "unit": "כוס" }
+    ]
+}
